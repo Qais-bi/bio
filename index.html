@@ -26,11 +26,11 @@
         body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', sans-serif; margin: 0; padding: 10px; text-align: center; }
         .container { max-width: 480px; margin: auto; }
         .box { background: var(--card); padding: 20px; border-radius: 25px; border: 1px solid var(--glass); margin-bottom: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        h1 { background: linear-gradient(45deg, var(--accent), #fff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 26px; font-weight: 900; }
+        h1 { background: linear-gradient(45deg, var(--accent), #fff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 26px; font-weight: 900; margin-bottom: 5px; }
         input { width: 100%; padding: 15px; border-radius: 15px; border: 2px solid var(--glass); background: var(--glass); color: var(--text); text-align: center; font-size: 24px; font-weight: bold; outline: none; }
         .result-big { font-size: 45px; color: var(--accent); font-weight: 800; margin: 10px 0; }
         
-        .suggestion-box { background: rgba(255, 215, 0, 0.1); padding: 10px; border-radius: 15px; margin: 10px 0; border: 1px dashed var(--accent); font-size: 14px; display: none; }
+        .suggestion-box { background: rgba(255, 215, 0, 0.1); padding: 15px; border-radius: 15px; margin: 10px 0; border: 1px dashed var(--accent); font-size: 15px; display: none; line-height: 1.5; color: #fff; }
 
         .currency-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 15px 0; }
         .coin-btn { padding: 15px 5px; border-radius: 15px; border: none; cursor: pointer; font-weight: 900; font-size: 16px; color: #fff; text-shadow: 1px 1px 2px rgba(0,0,0,0.5); transition: 0.1s; }
@@ -72,8 +72,6 @@
         <div class="result-big" id="resNew">0 ل.س</div>
         
         <div id="suggestion" class="suggestion-box"></div>
-
-        <button class="btn-main" style="background:#546e7a; width:auto; padding:10px 30px;" onclick="vibrate(); speakResult()">🔊 نطق السعر</button>
     </div>
 
     <div style="display: flex; gap: 10px;">
@@ -117,7 +115,9 @@
     function calculate() {
         let input = document.getElementById('mainInput').value;
         let oldSum = 0;
-        try { oldSum = Function('"use strict"; return (' + input.replace(/[^0-9+.-]/g, '') + ')')() || 0; } catch(e) { oldSum = 0; }
+        try { 
+            oldSum = eval(input.replace(/[^0-9+.-]/g, '')) || 0; 
+        } catch(e) { oldSum = 0; }
         
         let newAmount = oldSum / 100;
         document.getElementById('resNew').innerText = newAmount.toLocaleString() + " ل.س";
@@ -125,13 +125,9 @@
         generateSuggestion(newAmount);
     }
 
-    // خوارزمية نصيحة الدفع بالأوراق الرسمية
     function generateSuggestion(amount) {
         let suggestionDiv = document.getElementById('suggestion');
-        if (amount <= 0) {
-            suggestionDiv.style.display = 'none';
-            return;
-        }
+        if (amount <= 0) { suggestionDiv.style.display = 'none'; return; }
 
         let remaining = amount;
         let bills = [500, 200, 100, 50, 25, 10];
@@ -140,27 +136,17 @@
         for (let bill of bills) {
             let count = Math.floor(remaining / bill);
             if (count > 0) {
-                result.push(`${count} ورقة من فئة ${bill}`);
+                result.push(`${count} ورقة (${bill})`);
                 remaining %= bill;
             }
         }
 
         if (result.length > 0) {
             suggestionDiv.style.display = 'block';
-            suggestionDiv.innerHTML = `<strong>💡 نصيحة الدفع:</strong><br>` + result.join(' + ') + 
-                                       (remaining > 0 ? `<br><small>(بقي فكة: ${remaining} ليرة)</small>` : "");
+            suggestionDiv.innerHTML = `<strong>💡 ادفع بالأوراق التالية:</strong><br>` + result.join(' + ');
         } else {
             suggestionDiv.style.display = 'none';
         }
-    }
-
-    function speakResult() {
-        let textToSpeak = document.getElementById('resNew').innerText;
-        if(textToSpeak === "0 ل.س") return;
-        window.speechSynthesis.cancel();
-        let msg = new SpeechSynthesisUtterance("المبلغ هو " + textToSpeak.replace("ل.س", "ليرة سورية"));
-        msg.lang = 'ar-SA';
-        window.speechSynthesis.speak(msg);
     }
 
     function addCoin(val) { touchTotal += val; document.getElementById('mainInput').value = touchTotal * 100; calculate(); }
