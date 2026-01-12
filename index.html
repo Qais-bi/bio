@@ -16,7 +16,6 @@
         :root { 
             --bg: #001a1a; --card: #002e2e; --text: #e0f2f1; 
             --accent: #ffd700; --btn-green: #00c853; --glass: rgba(255, 255, 255, 0.05);
-            /* ألوان العملات الورقية */
             --l500: #FFD700; --l200: #4CAF50; --l100: #F48FB1;
             --l50: #FF9800; --l25: #0277BD; --l10: #C2185B;
         }
@@ -29,18 +28,14 @@
         .box { background: var(--card); padding: 20px; border-radius: 25px; border: 1px solid var(--glass); margin-bottom: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
         h1 { background: linear-gradient(45deg, var(--accent), #fff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 26px; font-weight: 900; }
         input { width: 100%; padding: 15px; border-radius: 15px; border: 2px solid var(--glass); background: var(--glass); color: var(--text); text-align: center; font-size: 24px; font-weight: bold; outline: none; }
-        .result-big { font-size: 45px; color: var(--accent); font-weight: 800; margin: 15px 0; }
+        .result-big { font-size: 45px; color: var(--accent); font-weight: 800; margin: 10px 0; }
         
+        .suggestion-box { background: rgba(255, 215, 0, 0.1); padding: 10px; border-radius: 15px; margin: 10px 0; border: 1px dashed var(--accent); font-size: 14px; display: none; }
+
         .currency-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 15px 0; }
-        .coin-btn { 
-            padding: 15px 5px; border-radius: 15px; border: none; 
-            cursor: pointer; font-weight: 900; font-size: 16px; 
-            color: #fff; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
-            transition: 0.1s;
-        }
+        .coin-btn { padding: 15px 5px; border-radius: 15px; border: none; cursor: pointer; font-weight: 900; font-size: 16px; color: #fff; text-shadow: 1px 1px 2px rgba(0,0,0,0.5); transition: 0.1s; }
         .coin-btn:active { transform: scale(0.9); opacity: 0.8; }
         
-        /* تخصيص ألوان الأزرار حسب الفئة */
         .btn-500 { background-color: var(--l500); color: #000; }
         .btn-200 { background-color: var(--l200); }
         .btn-100 { background-color: var(--l100); }
@@ -52,14 +47,15 @@
         #camera-ui { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 1000; }
         video { width: 100%; height: 75%; object-fit: cover; }
         .history-item { background: var(--glass); padding: 10px; border-radius: 10px; margin-bottom: 8px; display: flex; justify-content: space-between; font-size: 14px; border-right: 4px solid var(--accent); }
+        
+        footer { font-size: 11px; opacity: 0.7; margin: 30px 0; line-height: 1.6; border-top: 1px solid var(--glass); padding-top: 15px; }
     </style>
 </head>
 <body>
 
 <div id="camera-ui">
-    <h3 id="cam-title" style="color:white; margin-top:20px;">جاري تشغيل الكاميرا...</h3>
     <video id="video" autoplay playsinline></video>
-    <div id="snap-area" style="margin-top:20px;">
+    <div style="margin-top:20px;">
         <button id="snap-btn" style="width:70px; height:70px; background:white; border-radius:50%; border:none;" onclick="takeSnapshot()"></button>
     </div>
     <button onclick="closeCamera()" style="color:white; background:#ff5252; border:none; padding:12px 40px; border-radius:10px; margin-top:20px;">إلغاء</button>
@@ -71,19 +67,21 @@
         <button onclick="vibrate(); toggleMode()" style="background:var(--glass); border:none; border-radius:50%; width:40px; height:40px; color:var(--text); cursor:pointer;">🌓</button>
     </header>
 
+    <div class="box">
+        <input type="text" id="mainInput" placeholder="أدخل المبلغ القديم" oninput="calculate()">
+        <div class="result-big" id="resNew">0 ل.س</div>
+        
+        <div id="suggestion" class="suggestion-box"></div>
+
+        <button class="btn-main" style="background:#546e7a; width:auto; padding:10px 30px;" onclick="vibrate(); speakResult()">🔊 نطق السعر</button>
+    </div>
+
     <div style="display: flex; gap: 10px;">
         <button class="btn-main" style="background: linear-gradient(45deg, #ff5252, #d32f2f);" onclick="vibrate(); openCamera('OCR')">📷 مسح السعر</button>
         <button class="btn-main" style="background: linear-gradient(45deg, #9b59b6, #8e44ad);" onclick="vibrate(); openCamera('BARCODE')">🔍 باركود</button>
     </div>
 
     <div class="box">
-        <input type="text" id="mainInput" placeholder="0" oninput="calculate()">
-        <div class="result-big" id="resNew">0 ل.س</div>
-        <button class="btn-main" style="background:#546e7a; width:auto; padding:10px 30px;" onclick="vibrate(); speakResult()">🔊 نطق السعر</button>
-    </div>
-
-    <div class="box">
-        <div style="font-size: 13px; opacity: 0.8; margin-bottom: 12px;">اختر الفئات الورقية للحساب السريع:</div>
         <div class="currency-grid">
             <button class="coin-btn btn-500" onclick="vibrate(); addCoin(500)">💵 500</button>
             <button class="coin-btn btn-200" onclick="vibrate(); addCoin(200)">💵 200</button>
@@ -99,50 +97,89 @@
         </div>
     </div>
 
-    <div class="box" id="historyBox" style="text-align: right; min-height: 100px;">
-        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--glass); padding-bottom: 10px; margin-bottom: 10px;">
-            <strong style="color:var(--accent);">📜 سجل العمليات:</strong>
-            <button onclick="vibrate(); clearHistory()" style="background:none; border:none; color:#ff5252; cursor:pointer; font-size:12px;">حذف السجل</button>
-        </div>
+    <div class="box" id="historyBox" style="text-align: right; min-height: 50px;">
         <div id="historyList"></div>
     </div>
     
-    <footer style="font-size: 10px; opacity: 0.5; margin: 20px 0;">تطوير: محمد (قيس) & Alsokhni AI</footer>
+    <footer>
+        برمجة وصناعة وتطوير: <b>محمد قيس محمد لافي السخني</b> <br>
+        جميع الحقوق محفوظة 2026 ©
+    </footer>
 </div>
 
 <script>
-    if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('data:text/javascript;base64,c2VsZi5hZGRFdmVudExpc3RlbmVyKCdpbnN0YWxsJywgZSA9PiB7IGUud2FpdFVudGlsKGNhY2hlcy5vcGVuKCdhbHNva2huaScpLnRoZW4oY2FjaGUgPT4gY2FjaGUuYWRkQWxsKFsnLicsJ2luZGV4Lmh0bWwnXSkpKTsgfSk7IHNlbGYuYWRkRXZlbnRMaXN0ZW5lcignZmV0Y2gnLCBlID0+IHsgZS5yZXNwb25kV2l0aChjYWNoZXMubWF0Y2goZS5yZXF1ZXN0KS50aGVuKHIgPT4gciB8fCBmZXRjaChlLnJlcXVlc3QpKSk7IH0pOw==');
-    }
-
     let touchTotal = 0;
     let video = document.getElementById('video');
     const codeReader = new ZXing.BrowserMultiFormatReader();
 
     function vibrate() { if (navigator.vibrate) navigator.vibrate(50); }
 
-    async function openCamera(mode) {
-        document.getElementById('camera-ui').style.display = 'block';
-        const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
-        video.srcObject = stream;
-        if(mode === 'BARCODE') {
-            codeReader.decodeFromVideoElement(video, (result) => {
-                if (result) {
-                    vibrate();
-                    document.getElementById('mainInput').value = result.text.match(/\d+/g)?.join('') || 0;
-                    calculate();
-                    closeCamera();
-                }
-            });
+    function calculate() {
+        let input = document.getElementById('mainInput').value;
+        let oldSum = 0;
+        try { oldSum = Function('"use strict"; return (' + input.replace(/[^0-9+.-]/g, '') + ')')() || 0; } catch(e) { oldSum = 0; }
+        
+        let newAmount = oldSum / 100;
+        document.getElementById('resNew').innerText = newAmount.toLocaleString() + " ل.س";
+        
+        generateSuggestion(newAmount);
+    }
+
+    // خوارزمية نصيحة الدفع بالأوراق الرسمية
+    function generateSuggestion(amount) {
+        let suggestionDiv = document.getElementById('suggestion');
+        if (amount <= 0) {
+            suggestionDiv.style.display = 'none';
+            return;
+        }
+
+        let remaining = amount;
+        let bills = [500, 200, 100, 50, 25, 10];
+        let result = [];
+
+        for (let bill of bills) {
+            let count = Math.floor(remaining / bill);
+            if (count > 0) {
+                result.push(`${count} ورقة من فئة ${bill}`);
+                remaining %= bill;
+            }
+        }
+
+        if (result.length > 0) {
+            suggestionDiv.style.display = 'block';
+            suggestionDiv.innerHTML = `<strong>💡 نصيحة الدفع:</strong><br>` + result.join(' + ') + 
+                                       (remaining > 0 ? `<br><small>(بقي فكة: ${remaining} ليرة)</small>` : "");
+        } else {
+            suggestionDiv.style.display = 'none';
         }
     }
 
-    function closeCamera() {
-        if(video.srcObject) video.srcObject.getTracks().forEach(t => t.stop());
-        codeReader.reset();
-        document.getElementById('camera-ui').style.display = 'none';
+    function speakResult() {
+        let textToSpeak = document.getElementById('resNew').innerText;
+        if(textToSpeak === "0 ل.س") return;
+        window.speechSynthesis.cancel();
+        let msg = new SpeechSynthesisUtterance("المبلغ هو " + textToSpeak.replace("ل.س", "ليرة سورية"));
+        msg.lang = 'ar-SA';
+        window.speechSynthesis.speak(msg);
     }
 
+    function addCoin(val) { touchTotal += val; document.getElementById('mainInput').value = touchTotal * 100; calculate(); }
+    
+    async function openCamera(mode) {
+        document.getElementById('camera-ui').style.display = 'block';
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+            video.srcObject = stream;
+            if(mode === 'BARCODE') {
+                codeReader.decodeFromVideoElement(video, (result) => {
+                    if (result) { vibrate(); document.getElementById('mainInput').value = result.text.match(/\d+/g)?.join('') || 0; calculate(); closeCamera(); }
+                });
+            }
+        } catch(e) { alert("الكاميرا غير متاحة"); closeCamera(); }
+    }
+    
+    function closeCamera() { if(video.srcObject) video.srcObject.getTracks().forEach(t => t.stop()); codeReader.reset(); document.getElementById('camera-ui').style.display = 'none'; }
+    
     function takeSnapshot() {
         const canvas = document.createElement('canvas');
         canvas.width = video.videoWidth; canvas.height = video.videoHeight;
@@ -152,15 +189,6 @@
             if(num) { document.getElementById('mainInput').value = num.join(''); calculate(); }
             closeCamera();
         });
-    }
-
-    function addCoin(val) { touchTotal += val; document.getElementById('mainInput').value = touchTotal * 100; calculate(); }
-
-    function calculate() {
-        let input = document.getElementById('mainInput').value;
-        let oldSum = 0;
-        try { oldSum = Function('"use strict"; return (' + input.replace(/[^0-9+.-]/g, '') + ')')() || 0; } catch(e) { oldSum = 0; }
-        document.getElementById('resNew').innerText = (oldSum / 100).toLocaleString() + " ل.س";
     }
 
     function saveToHistory() {
@@ -173,14 +201,9 @@
     }
 
     function resetAll() { touchTotal = 0; document.getElementById('mainInput').value = ""; calculate(); }
-    function clearHistory() { if(confirm("حذف كل العمليات؟")) document.getElementById('historyList').innerHTML = ""; }
     function toggleMode() { document.body.classList.toggle("light-mode"); }
-    function speakResult() {
-        let msg = new SpeechSynthesisUtterance("المبلغ " + document.getElementById('resNew').innerText);
-        msg.lang = 'ar-SA'; window.speechSynthesis.speak(msg);
-    }
     function share() {
-        let text = `📄 *Alsokhni lira new*\nالمبلغ: ${document.getElementById('resNew').innerText}\n_بواسطة تطبيق قيس الذكي_`;
+        let text = `📄 *Alsokhni lira new*\nالمبلغ: ${document.getElementById('resNew').innerText}\n_بواسطة تطبيق محمد قيس السخني_`;
         window.open(`https://wa.me/?text=${encodeURIComponent(text)}`);
     }
 </script>
