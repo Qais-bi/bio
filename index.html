@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alsokhni lira new</title>
+    
+    <meta name="theme-color" content="#001a1a">
+    <meta name="mobile-web-app-capable" content="yes">
+    <link rel="manifest" href="data:application/manifest+json,{'name':'Alsokhni Lira','short_name':'Alsokhni','start_url':'.','display':'standalone','background_color':'#001a1a','theme_color':'#001a1a'}">
+
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
+    <script src="https://unpkg.com/@zxing/library@latest"></script>
+
+    <style>
+        :root { 
+            --bg: #001a1a; --card: #002e2e; --text: #e0f2f1; 
+            --accent: #ffd700; --btn-green: #00c853; --glass: rgba(255, 255, 255, 0.05);
+            /* ألوان العملات الورقية */
+            --l500: #FFD700; --l200: #4CAF50; --l100: #F48FB1;
+            --l50: #FF9800; --l25: #0277BD; --l10: #C2185B;
+        }
+        .light-mode { 
+            --bg: #f8fbf8; --card: #ffffff; --text: #004d40; 
+            --accent: #b8860b; --btn-green: #00796b; --glass: rgba(0, 0, 0, 0.05);
+        }
+        body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', sans-serif; margin: 0; padding: 10px; text-align: center; }
+        .container { max-width: 480px; margin: auto; }
+        .box { background: var(--card); padding: 20px; border-radius: 25px; border: 1px solid var(--glass); margin-bottom: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        h1 { background: linear-gradient(45deg, var(--accent), #fff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 26px; font-weight: 900; }
+        input { width: 100%; padding: 15px; border-radius: 15px; border: 2px solid var(--glass); background: var(--glass); color: var(--text); text-align: center; font-size: 24px; font-weight: bold; outline: none; }
+        .result-big { font-size: 45px; color: var(--accent); font-weight: 800; margin: 15px 0; }
+        
+        .currency-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 15px 0; }
+        .coin-btn { 
+            padding: 15px 5px; border-radius: 15px; border: none; 
+            cursor: pointer; font-weight: 900; font-size: 16px; 
+            color: #fff; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+            transition: 0.1s;
+        }
+        .coin-btn:active { transform: scale(0.9); opacity: 0.8; }
+        
+        /* تخصيص ألوان الأزرار حسب الفئة */
+        .btn-500 { background-color: var(--l500); color: #000; }
+        .btn-200 { background-color: var(--l200); }
+        .btn-100 { background-color: var(--l100); }
+        .btn-50 { background-color: var(--l50); }
+        .btn-25 { background-color: var(--l25); }
+        .btn-10 { background-color: var(--l10); }
+
+        .btn-main { background: var(--btn-green); color: white; border: none; padding: 15px; border-radius: 15px; font-weight: bold; cursor: pointer; width: 100%; font-size: 16px; margin-bottom: 10px; }
+        #camera-ui { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 1000; }
+        video { width: 100%; height: 75%; object-fit: cover; }
+        .history-item { background: var(--glass); padding: 10px; border-radius: 10px; margin-bottom: 8px; display: flex; justify-content: space-between; font-size: 14px; border-right: 4px solid var(--accent); }
+    </style>
+</head>
+<body>
+
+<div id="camera-ui">
+    <h3 id="cam-title" style="color:white; margin-top:20px;">جاري تشغيل الكاميرا...</h3>
+    <video id="video" autoplay playsinline></video>
+    <div id="snap-area" style="margin-top:20px;">
+        <button id="snap-btn" style="width:70px; height:70px; background:white; border-radius:50%; border:none;" onclick="takeSnapshot()"></button>
+    </div>
+    <button onclick="closeCamera()" style="color:white; background:#ff5252; border:none; padding:12px 40px; border-radius:10px; margin-top:20px;">إلغاء</button>
+</div>
+
+<div class="container">
+    <header style="display: flex; justify-content: space-between; align-items: center; padding: 10px;">
+        <h1>Alsokhni lira new</h1>
+        <button onclick="vibrate(); toggleMode()" style="background:var(--glass); border:none; border-radius:50%; width:40px; height:40px; color:var(--text); cursor:pointer;">🌓</button>
+    </header>
+
+    <div style="display: flex; gap: 10px;">
+        <button class="btn-main" style="background: linear-gradient(45deg, #ff5252, #d32f2f);" onclick="vibrate(); openCamera('OCR')">📷 مسح السعر</button>
+        <button class="btn-main" style="background: linear-gradient(45deg, #9b59b6, #8e44ad);" onclick="vibrate(); openCamera('BARCODE')">🔍 باركود</button>
+    </div>
+
+    <div class="box">
+        <input type="text" id="mainInput" placeholder="0" oninput="calculate()">
+        <div class="result-big" id="resNew">0 ل.س</div>
+        <button class="btn-main" style="background:#546e7a; width:auto; padding:10px 30px;" onclick="vibrate(); speakResult()">🔊 نطق السعر</button>
+    </div>
+
+    <div class="box">
+        <div style="font-size: 13px; opacity: 0.8; margin-bottom: 12px;">اختر الفئات الورقية للحساب السريع:</div>
+        <div class="currency-grid">
+            <button class="coin-btn btn-500" onclick="vibrate(); addCoin(500)">💵 500</button>
+            <button class="coin-btn btn-200" onclick="vibrate(); addCoin(200)">💵 200</button>
+            <button class="coin-btn btn-100" onclick="vibrate(); addCoin(100)">💵 100</button>
+            <button class="coin-btn btn-50" onclick="vibrate(); addCoin(50)">💵 50</button>
+            <button class="coin-btn btn-25" onclick="vibrate(); addCoin(25)">💵 25</button>
+            <button class="coin-btn btn-10" onclick="vibrate(); addCoin(10)">💵 10</button>
+        </div>
+        <button class="btn-main" onclick="vibrate(); saveToHistory()">📥 إضافة للسجل وحفظ العملية</button>
+        <div style="display: flex; gap: 10px;">
+            <button class="btn-main" style="background:#c0392b; flex:1;" onclick="vibrate(); resetAll()">🔄 تصفير</button>
+            <button class="btn-main" style="background:#2ecc71; flex:1;" onclick="vibrate(); share()">📤 مشاركة</button>
+        </div>
+    </div>
+
+    <div class="box" id="historyBox" style="text-align: right; min-height: 100px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--glass); padding-bottom: 10px; margin-bottom: 10px;">
+            <strong style="color:var(--accent);">📜 سجل العمليات:</strong>
+            <button onclick="vibrate(); clearHistory()" style="background:none; border:none; color:#ff5252; cursor:pointer; font-size:12px;">حذف السجل</button>
+        </div>
+        <div id="historyList"></div>
+    </div>
+    
+    <footer style="font-size: 10px; opacity: 0.5; margin: 20px 0;">تطوير: محمد (قيس) & Alsokhni AI</footer>
+</div>
+
+<script>
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('data:text/javascript;base64,c2VsZi5hZGRFdmVudExpc3RlbmVyKCdpbnN0YWxsJywgZSA9PiB7IGUud2FpdFVudGlsKGNhY2hlcy5vcGVuKCdhbHNva2huaScpLnRoZW4oY2FjaGUgPT4gY2FjaGUuYWRkQWxsKFsnLicsJ2luZGV4Lmh0bWwnXSkpKTsgfSk7IHNlbGYuYWRkRXZlbnRMaXN0ZW5lcignZmV0Y2gnLCBlID0+IHsgZS5yZXNwb25kV2l0aChjYWNoZXMubWF0Y2goZS5yZXF1ZXN0KS50aGVuKHIgPT4gciB8fCBmZXRjaChlLnJlcXVlc3QpKSk7IH0pOw==');
+    }
+
+    let touchTotal = 0;
+    let video = document.getElementById('video');
+    const codeReader = new ZXing.BrowserMultiFormatReader();
+
+    function vibrate() { if (navigator.vibrate) navigator.vibrate(50); }
+
+    async function openCamera(mode) {
+        document.getElementById('camera-ui').style.display = 'block';
+        const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+        video.srcObject = stream;
+        if(mode === 'BARCODE') {
+            codeReader.decodeFromVideoElement(video, (result) => {
+                if (result) {
+                    vibrate();
+                    document.getElementById('mainInput').value = result.text.match(/\d+/g)?.join('') || 0;
+                    calculate();
+                    closeCamera();
+                }
+            });
+        }
+    }
+
+    function closeCamera() {
+        if(video.srcObject) video.srcObject.getTracks().forEach(t => t.stop());
+        codeReader.reset();
+        document.getElementById('camera-ui').style.display = 'none';
+    }
+
+    function takeSnapshot() {
+        const canvas = document.createElement('canvas');
+        canvas.width = video.videoWidth; canvas.height = video.videoHeight;
+        canvas.getContext('2d').drawImage(video, 0, 0);
+        Tesseract.recognize(canvas.toDataURL(), 'eng').then(({ data: { text } }) => {
+            let num = text.match(/\d+/g);
+            if(num) { document.getElementById('mainInput').value = num.join(''); calculate(); }
+            closeCamera();
+        });
+    }
+
+    function addCoin(val) { touchTotal += val; document.getElementById('mainInput').value = touchTotal * 100; calculate(); }
+
+    function calculate() {
+        let input = document.getElementById('mainInput').value;
+        let oldSum = 0;
+        try { oldSum = Function('"use strict"; return (' + input.replace(/[^0-9+.-]/g, '') + ')')() || 0; } catch(e) { oldSum = 0; }
+        document.getElementById('resNew').innerText = (oldSum / 100).toLocaleString() + " ل.س";
+    }
+
+    function saveToHistory() {
+        let res = document.getElementById('resNew').innerText;
+        if(res === "0 ل.س") return;
+        let time = new Date().toLocaleTimeString('ar-SY', {hour: '2-digit', minute:'2-digit'});
+        let item = `<div class="history-item"><span>💰 ${res}</span><small>${time}</small></div>`;
+        document.getElementById('historyList').innerHTML = item + document.getElementById('historyList').innerHTML;
+        resetAll();
+    }
+
+    function resetAll() { touchTotal = 0; document.getElementById('mainInput').value = ""; calculate(); }
+    function clearHistory() { if(confirm("حذف كل العمليات؟")) document.getElementById('historyList').innerHTML = ""; }
+    function toggleMode() { document.body.classList.toggle("light-mode"); }
+    function speakResult() {
+        let msg = new SpeechSynthesisUtterance("المبلغ " + document.getElementById('resNew').innerText);
+        msg.lang = 'ar-SA'; window.speechSynthesis.speak(msg);
+    }
+    function share() {
+        let text = `📄 *Alsokhni lira new*\nالمبلغ: ${document.getElementById('resNew').innerText}\n_بواسطة تطبيق قيس الذكي_`;
+        window.open(`https://wa.me/?text=${encodeURIComponent(text)}`);
+    }
+</script>
+</body>
+</html>
