@@ -7,191 +7,100 @@
     
     <meta name="theme-color" content="#001a1a">
     <meta name="mobile-web-app-capable" content="yes">
-    <link rel="manifest" href="data:application/manifest+json,{'name':'Alsokhni Lira','short_name':'Alsokhni','start_url':'.','display':'standalone','background_color':'#001a1a','theme_color':'#001a1a'}">
-
-    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
-    <script src="https://unpkg.com/@zxing/library@latest"></script>
+    <link rel="manifest" href="data:application/manifest+json,{'name':'Alsokhni Lira','short_name':'السخني ليرة','start_url':'.','display':'standalone','background_color':'#001a1a','theme_color':'#001a1a'}">
 
     <style>
         :root { 
             --bg: #001a1a; --card: #002e2e; --text: #e0f2f1; 
             --accent: #ffd700; --btn-green: #00c853; --glass: rgba(255, 255, 255, 0.05);
-            --l500: #FFD700; --l200: #4CAF50; --l100: #F48FB1;
-            --l50: #FF9800; --l25: #0277BD; --l10: #C2185B;
+            --fb-blue: #1877F2;
         }
         .light-mode { 
-            --bg: #f8fbf8; --card: #ffffff; --text: #004d40; 
-            --accent: #b8860b; --btn-green: #00796b; --glass: rgba(0, 0, 0, 0.05);
+            --bg: #f0f4f4; --card: #ffffff; --text: #003333; 
+            --accent: #b8860b; --btn-green: #00796b; --glass: rgba(0, 0, 0, 0.08);
         }
-        body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', sans-serif; margin: 0; padding: 10px; text-align: center; }
+        body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', sans-serif; margin: 0; padding: 10px; text-align: center; transition: 0.3s; }
         .container { max-width: 480px; margin: auto; }
-        .box { background: var(--card); padding: 20px; border-radius: 25px; border: 1px solid var(--glass); margin-bottom: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        h1 { background: linear-gradient(45deg, var(--accent), #fff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 26px; font-weight: 900; margin-bottom: 5px; }
-        input { width: 100%; padding: 15px; border-radius: 15px; border: 2px solid var(--glass); background: var(--glass); color: var(--text); text-align: center; font-size: 24px; font-weight: bold; outline: none; }
+        
+        .box { background: var(--card); padding: 20px; border-radius: 25px; border: 1px solid var(--glass); margin-bottom: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); position: relative; }
+        
+        h1 { background: linear-gradient(45deg, var(--accent), #fff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 26px; font-weight: 900; margin: 0; }
+
+        input { width: 100%; padding: 15px; border-radius: 15px; border: 2px solid var(--glass); background: rgba(255,255,255,0.05); color: var(--text); text-align: center; font-size: 24px; font-weight: bold; outline: none; box-sizing: border-box; }
+        
         .result-big { font-size: 45px; color: var(--accent); font-weight: 800; margin: 10px 0; }
         
-        .suggestion-box { background: rgba(255, 215, 0, 0.1); padding: 15px; border-radius: 15px; margin: 10px 0; border: 1px dashed var(--accent); font-size: 15px; display: none; line-height: 1.5; color: #fff; }
+        .currency-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin: 15px 0; }
+        .bill-btn { background: none; border: none; padding: 0; cursor: pointer; transition: transform 0.2s; }
+        .bill-btn img { width: 100%; height: auto; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); }
 
-        .currency-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 15px 0; }
-        .coin-btn { padding: 15px 5px; border-radius: 15px; border: none; cursor: pointer; font-weight: 900; font-size: 16px; color: #fff; text-shadow: 1px 1px 2px rgba(0,0,0,0.5); transition: 0.1s; }
-        .coin-btn:active { transform: scale(0.9); opacity: 0.8; }
-        
-        .btn-500 { background-color: var(--l500); color: #000; }
-        .btn-200 { background-color: var(--l200); }
-        .btn-100 { background-color: var(--l100); }
-        .btn-50 { background-color: var(--l50); }
-        .btn-25 { background-color: var(--l25); }
-        .btn-10 { background-color: var(--l10); }
+        /* زر التواصل مع محمد السخني */
+        .dev-card {
+            background: rgba(24, 119, 242, 0.1);
+            border-radius: 20px;
+            padding: 15px;
+            margin-top: 10px;
+            border: 1px solid rgba(24, 119, 242, 0.3);
+        }
+        .dev-contact {
+            display: inline-flex; align-items: center; justify-content: center;
+            background: var(--fb-blue); color: white; text-decoration: none;
+            padding: 12px 20px; border-radius: 50px; font-weight: bold;
+            box-shadow: 0 4px 15px rgba(24, 119, 242, 0.4);
+            transition: 0.3s; font-size: 14px;
+        }
+        .dev-contact:hover { transform: translateY(-3px); box-shadow: 0 6px 20px rgba(24, 119, 242, 0.6); }
+        .dev-contact span { margin-left: 8px; font-size: 18px; }
 
-        .btn-main { background: var(--btn-green); color: white; border: none; padding: 15px; border-radius: 15px; font-weight: bold; cursor: pointer; width: 100%; font-size: 16px; margin-bottom: 10px; }
-        #camera-ui { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 1000; }
-        video { width: 100%; height: 75%; object-fit: cover; }
-        .history-item { background: var(--glass); padding: 10px; border-radius: 10px; margin-bottom: 8px; display: flex; justify-content: space-between; font-size: 14px; border-right: 4px solid var(--accent); }
-        
-        footer { font-size: 11px; opacity: 0.7; margin: 30px 0; line-height: 1.6; border-top: 1px solid var(--glass); padding-top: 15px; }
+        footer { font-size: 11px; opacity: 0.8; margin: 30px 0; border-top: 1px solid var(--glass); padding-top: 15px; }
     </style>
 </head>
 <body>
 
-<div id="camera-ui">
-    <video id="video" autoplay playsinline></video>
-    <div style="margin-top:20px;">
-        <button id="snap-btn" style="width:70px; height:70px; background:white; border-radius:50%; border:none;" onclick="takeSnapshot()"></button>
-    </div>
-    <button onclick="closeCamera()" style="color:white; background:#ff5252; border:none; padding:12px 40px; border-radius:10px; margin-top:20px;">إلغاء</button>
-</div>
-
 <div class="container">
-    <header style="display: flex; justify-content: space-between; align-items: center; padding: 10px;">
+    <header style="display: flex; justify-content: space-between; align-items: center; padding: 10px 5px;">
         <h1>Alsokhni lira new</h1>
-        <button onclick="vibrate(); toggleMode()" style="background:var(--glass); border:none; border-radius:50%; width:40px; height:40px; color:var(--text); cursor:pointer;">🌓</button>
+        <button onclick="toggleMode()" style="background:var(--glass); border:none; border-radius:50%; width:40px; height:40px; color:var(--text); cursor:pointer;">🌓</button>
     </header>
 
     <div class="box">
         <input type="text" id="mainInput" placeholder="أدخل المبلغ القديم" oninput="calculate()">
         <div class="result-big" id="resNew">0 ل.س</div>
-        
-        <div id="suggestion" class="suggestion-box"></div>
-    </div>
-
-    <div style="display: flex; gap: 10px;">
-        <button class="btn-main" style="background: linear-gradient(45deg, #ff5252, #d32f2f);" onclick="vibrate(); openCamera('OCR')">📷 مسح السعر</button>
-        <button class="btn-main" style="background: linear-gradient(45deg, #9b59b6, #8e44ad);" onclick="vibrate(); openCamera('BARCODE')">🔍 باركود</button>
     </div>
 
     <div class="box">
+        <p style="font-size: 13px; margin-bottom: 15px; font-weight: bold;">اختر فئة العملة الجديدة المتوفرة معك:</p>
         <div class="currency-grid">
-            <button class="coin-btn btn-500" onclick="vibrate(); addCoin(500)">💵 500</button>
-            <button class="coin-btn btn-200" onclick="vibrate(); addCoin(200)">💵 200</button>
-            <button class="coin-btn btn-100" onclick="vibrate(); addCoin(100)">💵 100</button>
-            <button class="coin-btn btn-50" onclick="vibrate(); addCoin(50)">💵 50</button>
-            <button class="coin-btn btn-25" onclick="vibrate(); addCoin(25)">💵 25</button>
-            <button class="coin-btn btn-10" onclick="vibrate(); addCoin(10)">💵 10</button>
+            <button class="bill-btn" onclick="addCoin(500)"><img src="https://www.banknotenews.com/wp-content/uploads/2021/01/syria_cbs_500_pounds_2020.00.00_f.jpg" alt="500"></button>
+            <button class="bill-btn" onclick="addCoin(200)"><img src="https://www.banknotenews.com/wp-content/uploads/2021/01/syria_cbs_200_pounds_2020.00.00_f.jpg" alt="200"></button>
+            <button class="bill-btn" onclick="addCoin(100)"><img src="https://www.banknotenews.com/wp-content/uploads/2021/01/syria_cbs_100_pounds_2020.00.00_f.jpg" alt="100"></button>
+            <button class="bill-btn" onclick="addCoin(50)"><img src="https://www.banknotenews.com/wp-content/uploads/2021/01/syria_cbs_50_pounds_2020.00.00_f.jpg" alt="50"></button>
         </div>
-        <button class="btn-main" onclick="vibrate(); saveToHistory()">📥 إضافة للسجل وحفظ العملية</button>
-        <div style="display: flex; gap: 10px;">
-            <button class="btn-main" style="background:#c0392b; flex:1;" onclick="vibrate(); resetAll()">🔄 تصفير</button>
-            <button class="btn-main" style="background:#2ecc71; flex:1;" onclick="vibrate(); share()">📤 مشاركة</button>
+        
+        <div class="dev-card">
+            <p style="font-size: 14px; margin-bottom: 10px; font-weight: bold;">للتواصل مع مطور التطبيق:</p>
+            <a href="https://www.facebook.com/share/1MnhPdMHrh/" target="_blank" class="dev-contact">
+                <span>👤</span> للتواصل مع محمد قيس السخني
+            </a>
         </div>
     </div>
 
-    <div class="box" id="historyBox" style="text-align: right; min-height: 50px;">
-        <div id="historyList"></div>
-    </div>
-    
     <footer>
-        برمجة وصناعة وتطوير: <b>محمد قيس محمد لافي السخني</b> <br>
-        جميع الحقوق محفوظة 2026 ©
+        برمجة وتطوير: <b>محمد قيس السخني</b> <br>
+        2026 © جميع الحقوق محفوظة
     </footer>
 </div>
 
 <script>
     let touchTotal = 0;
-    let video = document.getElementById('video');
-    const codeReader = new ZXing.BrowserMultiFormatReader();
-
-    function vibrate() { if (navigator.vibrate) navigator.vibrate(50); }
-
     function calculate() {
         let input = document.getElementById('mainInput').value;
         let oldSum = 0;
-        try { 
-            oldSum = eval(input.replace(/[^0-9+.-]/g, '')) || 0; 
-        } catch(e) { oldSum = 0; }
-        
-        let newAmount = oldSum / 100;
-        document.getElementById('resNew').innerText = newAmount.toLocaleString() + " ل.س";
-        
-        generateSuggestion(newAmount);
+        try { oldSum = eval(input.replace(/[^0-9+.-]/g, '')) || 0; } catch(e) { oldSum = 0; }
+        document.getElementById('resNew').innerText = (oldSum / 100).toLocaleString() + " ل.س";
     }
-
-    function generateSuggestion(amount) {
-        let suggestionDiv = document.getElementById('suggestion');
-        if (amount <= 0) { suggestionDiv.style.display = 'none'; return; }
-
-        let remaining = amount;
-        let bills = [500, 200, 100, 50, 25, 10];
-        let result = [];
-
-        for (let bill of bills) {
-            let count = Math.floor(remaining / bill);
-            if (count > 0) {
-                result.push(`${count} ورقة (${bill})`);
-                remaining %= bill;
-            }
-        }
-
-        if (result.length > 0) {
-            suggestionDiv.style.display = 'block';
-            suggestionDiv.innerHTML = `<strong>💡 ادفع بالأوراق التالية:</strong><br>` + result.join(' + ');
-        } else {
-            suggestionDiv.style.display = 'none';
-        }
-    }
-
     function addCoin(val) { touchTotal += val; document.getElementById('mainInput').value = touchTotal * 100; calculate(); }
-    
-    async function openCamera(mode) {
-        document.getElementById('camera-ui').style.display = 'block';
-        try {
-            const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
-            video.srcObject = stream;
-            if(mode === 'BARCODE') {
-                codeReader.decodeFromVideoElement(video, (result) => {
-                    if (result) { vibrate(); document.getElementById('mainInput').value = result.text.match(/\d+/g)?.join('') || 0; calculate(); closeCamera(); }
-                });
-            }
-        } catch(e) { alert("الكاميرا غير متاحة"); closeCamera(); }
-    }
-    
-    function closeCamera() { if(video.srcObject) video.srcObject.getTracks().forEach(t => t.stop()); codeReader.reset(); document.getElementById('camera-ui').style.display = 'none'; }
-    
-    function takeSnapshot() {
-        const canvas = document.createElement('canvas');
-        canvas.width = video.videoWidth; canvas.height = video.videoHeight;
-        canvas.getContext('2d').drawImage(video, 0, 0);
-        Tesseract.recognize(canvas.toDataURL(), 'eng').then(({ data: { text } }) => {
-            let num = text.match(/\d+/g);
-            if(num) { document.getElementById('mainInput').value = num.join(''); calculate(); }
-            closeCamera();
-        });
-    }
-
-    function saveToHistory() {
-        let res = document.getElementById('resNew').innerText;
-        if(res === "0 ل.س") return;
-        let time = new Date().toLocaleTimeString('ar-SY', {hour: '2-digit', minute:'2-digit'});
-        let item = `<div class="history-item"><span>💰 ${res}</span><small>${time}</small></div>`;
-        document.getElementById('historyList').innerHTML = item + document.getElementById('historyList').innerHTML;
-        resetAll();
-    }
-
-    function resetAll() { touchTotal = 0; document.getElementById('mainInput').value = ""; calculate(); }
     function toggleMode() { document.body.classList.toggle("light-mode"); }
-    function share() {
-        let text = `📄 *Alsokhni lira new*\nالمبلغ: ${document.getElementById('resNew').innerText}\n_بواسطة تطبيق محمد قيس السخني_`;
-        window.open(`https://wa.me/?text=${encodeURIComponent(text)}`);
-    }
 </script>
 </body>
 </html>
