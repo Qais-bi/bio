@@ -4,63 +4,28 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Alsokhni lira new</title>
-    
-    <meta name="theme-color" content="#001a1a">
-    <meta name="mobile-web-app-capable" content="yes">
-    <link rel="manifest" href="data:application/manifest+json,{'name':'Alsokhni Lira','short_name':'السخني ليرة','start_url':'.','display':'standalone','background_color':'#001a1a','theme_color':'#001a1a'}">
-
     <style>
         :root { 
             --bg: #001a1a; --card: #002e2e; --text: #e0f2f1; 
             --accent: #ffd700; --btn-green: #00c853; --glass: rgba(255, 255, 255, 0.05);
-            --fb-blue: #1877F2;
         }
-        .light-mode { 
-            --bg: #f0f4f4; --card: #ffffff; --text: #003333; 
-            --accent: #b8860b; --btn-green: #00796b; --glass: rgba(0, 0, 0, 0.08);
-        }
-        body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', sans-serif; margin: 0; padding: 10px; text-align: center; transition: 0.3s; }
+        body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', sans-serif; margin: 0; padding: 10px; text-align: center; }
         .container { max-width: 480px; margin: auto; }
-        
-        .box { background: var(--card); padding: 20px; border-radius: 25px; border: 1px solid var(--glass); margin-bottom: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); position: relative; }
-        
-        h1 { background: linear-gradient(45deg, var(--accent), #fff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 26px; font-weight: 900; margin: 0; }
-
-        input { width: 100%; padding: 15px; border-radius: 15px; border: 2px solid var(--glass); background: rgba(255,255,255,0.05); color: var(--text); text-align: center; font-size: 24px; font-weight: bold; outline: none; box-sizing: border-box; }
-        
-        .result-big { font-size: 45px; color: var(--accent); font-weight: 800; margin: 10px 0; }
-        
-        .currency-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin: 15px 0; }
-        .bill-btn { background: none; border: none; padding: 0; cursor: pointer; transition: transform 0.2s; }
-        .bill-btn img { width: 100%; height: auto; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); }
-
-        /* زر التواصل مع محمد السخني */
-        .dev-card {
-            background: rgba(24, 119, 242, 0.1);
-            border-radius: 20px;
-            padding: 15px;
-            margin-top: 10px;
-            border: 1px solid rgba(24, 119, 242, 0.3);
-        }
-        .dev-contact {
-            display: inline-flex; align-items: center; justify-content: center;
-            background: var(--fb-blue); color: white; text-decoration: none;
-            padding: 12px 20px; border-radius: 50px; font-weight: bold;
-            box-shadow: 0 4px 15px rgba(24, 119, 242, 0.4);
-            transition: 0.3s; font-size: 14px;
-        }
-        .dev-contact:hover { transform: translateY(-3px); box-shadow: 0 6px 20px rgba(24, 119, 242, 0.6); }
-        .dev-contact span { margin-left: 8px; font-size: 18px; }
-
-        footer { font-size: 11px; opacity: 0.8; margin: 30px 0; border-top: 1px solid var(--glass); padding-top: 15px; }
+        .box { background: var(--card); padding: 20px; border-radius: 25px; border: 1px solid var(--glass); margin-bottom: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        h1 { color: var(--accent); font-size: 24px; margin-bottom: 5px; }
+        input { width: 100%; padding: 15px; border-radius: 15px; border: none; background: var(--glass); color: var(--text); text-align: center; font-size: 24px; outline: none; box-sizing: border-box; }
+        .result-big { font-size: 40px; color: var(--accent); font-weight: bold; margin: 15px 0; }
+        .currency-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 15px 0; }
+        .coin-btn { padding: 15px 5px; border-radius: 15px; border: none; cursor: pointer; font-weight: bold; font-size: 16px; color: #fff; background: var(--btn-green); }
+        .btn-reset { background: #c0392b; color: white; border: none; padding: 15px; border-radius: 15px; width: 100%; cursor: pointer; font-size: 16px; }
+        footer { font-size: 12px; opacity: 0.7; margin-top: 30px; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <header style="display: flex; justify-content: space-between; align-items: center; padding: 10px 5px;">
+    <header>
         <h1>Alsokhni lira new</h1>
-        <button onclick="toggleMode()" style="background:var(--glass); border:none; border-radius:50%; width:40px; height:40px; color:var(--text); cursor:pointer;">🌓</button>
     </header>
 
     <div class="box">
@@ -69,20 +34,15 @@
     </div>
 
     <div class="box">
-        <p style="font-size: 13px; margin-bottom: 15px; font-weight: bold;">اختر فئة العملة الجديدة المتوفرة معك:</p>
         <div class="currency-grid">
-            <button class="bill-btn" onclick="addCoin(500)"><img src="https://www.banknotenews.com/wp-content/uploads/2021/01/syria_cbs_500_pounds_2020.00.00_f.jpg" alt="500"></button>
-            <button class="bill-btn" onclick="addCoin(200)"><img src="https://www.banknotenews.com/wp-content/uploads/2021/01/syria_cbs_200_pounds_2020.00.00_f.jpg" alt="200"></button>
-            <button class="bill-btn" onclick="addCoin(100)"><img src="https://www.banknotenews.com/wp-content/uploads/2021/01/syria_cbs_100_pounds_2020.00.00_f.jpg" alt="100"></button>
-            <button class="bill-btn" onclick="addCoin(50)"><img src="https://www.banknotenews.com/wp-content/uploads/2021/01/syria_cbs_50_pounds_2020.00.00_f.jpg" alt="50"></button>
+            <button class="coin-btn" onclick="addCoin(500)">500</button>
+            <button class="coin-btn" onclick="addCoin(200)">200</button>
+            <button class="coin-btn" onclick="addCoin(100)">100</button>
+            <button class="coin-btn" onclick="addCoin(50)">50</button>
+            <button class="coin-btn" onclick="addCoin(25)">25</button>
+            <button class="coin-btn" onclick="addCoin(10)">10</button>
         </div>
-        
-        <div class="dev-card">
-            <p style="font-size: 14px; margin-bottom: 10px; font-weight: bold;">للتواصل مع مطور التطبيق:</p>
-            <a href="https://www.facebook.com/share/1MnhPdMHrh/" target="_blank" class="dev-contact">
-                <span>👤</span> للتواصل مع محمد قيس السخني
-            </a>
-        </div>
+        <button class="btn-reset" onclick="resetAll()">🔄 تصفير الحساب</button>
     </div>
 
     <footer>
@@ -95,12 +55,19 @@
     let touchTotal = 0;
     function calculate() {
         let input = document.getElementById('mainInput').value;
-        let oldSum = 0;
-        try { oldSum = eval(input.replace(/[^0-9+.-]/g, '')) || 0; } catch(e) { oldSum = 0; }
+        let oldSum = parseFloat(input) || 0;
         document.getElementById('resNew').innerText = (oldSum / 100).toLocaleString() + " ل.س";
     }
-    function addCoin(val) { touchTotal += val; document.getElementById('mainInput').value = touchTotal * 100; calculate(); }
-    function toggleMode() { document.body.classList.toggle("light-mode"); }
+    function addCoin(val) {
+        touchTotal += val;
+        document.getElementById('mainInput').value = touchTotal * 100;
+        calculate();
+    }
+    function resetAll() {
+        touchTotal = 0;
+        document.getElementById('mainInput').value = "";
+        document.getElementById('resNew').innerText = "0 ل.س";
+    }
 </script>
 </body>
 </html>
